@@ -10407,7 +10407,26 @@
     // and this app is still meant to work as a double-clicked local file.
     if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
+        // updateViaCache:'none' so the browser always revalidates sw.js itself. Without
+        // it the worker script can be served from the HTTP cache, and a new worker — the
+        // thing that clears the old shell — never installs.
+        // Only an UPDATE warrants a reload. On a first visit there is no controller yet,
+        // and reloading then would make every new visitor load the page twice (and
+        // restart anything they had started doing).
+        const hadController = !!navigator.serviceWorker.controller;
+
+        navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
+          .then((reg) => {
+            reg.update().catch(() => {});
+            if (!hadController) return;
+
+            let refreshing = false;
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+              if (refreshing) return;
+              refreshing = true;
+              window.location.reload();
+            });
+          })
           .catch((err) => console.warn('Service worker registration failed:', err));
       });
     }

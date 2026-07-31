@@ -5,10 +5,12 @@
  * the next online load) and cache-first for the images (they only change when the
  * version below does).
  *
- * Bump CACHE whenever index.html or any listed asset changes, otherwise installed
- * copies keep serving the old shell.
+ * CACHE is a fingerprint of the shell files, written by tools/sync-sw-version.mjs — do
+ * NOT edit it by hand. A hand-maintained version string was forgotten exactly once and
+ * every returning visitor kept getting the previous page while the server served the
+ * new one. `npm test` fails if this is out of date.
  */
-const CACHE = 'simple-kanban-v1.1.0';
+const CACHE = 'simple-kanban-d4a19847a9b8';
 const SHELL = [
   './',
   './index.html',
@@ -50,7 +52,11 @@ self.addEventListener('fetch', (e) => {
 
   if (request.mode === 'navigate') {
     e.respondWith(
-      fetch(request)
+      // cache:'no-cache' revalidates with the server instead of accepting the browser's
+      // HTTP-cached copy. GitHub Pages sends index.html with a ten-minute max-age, so a
+      // plain fetch here is "network-first" in name only — it returns the same stale
+      // page the user is trying to escape.
+      fetch(request.url, { cache: 'no-cache', credentials: 'same-origin' })
         .then((res) => {
           const copy = res.clone();
           caches.open(CACHE).then((c) => c.put('./index.html', copy));

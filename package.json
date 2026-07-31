@@ -7,7 +7,9 @@
     "serve": "http-server -p 8791 -a 127.0.0.1 --silent .",
     "test": "playwright test",
     "test:headed": "playwright test --headed",
-    "icons": "python tools/make-icons.py"
+    "icons": "python tools/make-icons.py",
+    "sw:sync": "node tools/sync-sw-version.mjs",
+    "pretest": "node tools/sync-sw-version.mjs --check"
   },
   "devDependencies": {
     "@playwright/test": "^1.56.0",
