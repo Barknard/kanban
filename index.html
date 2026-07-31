@@ -1615,6 +1615,16 @@
         <button id="startupSelectFolderBtn" class="startup-btn startup-btn-primary" autofocus>
           📁 Select Save Folder
         </button>
+        <!-- A folder is OPTIONAL: the board already saves to OPFS/IndexedDB. Without a
+             way past this screen, anyone who dismisses the picker - or whose browser
+             refuses it - is stuck on a page whose only button appears to do nothing. -->
+        <button id="startupSkipFolderBtn" class="startup-btn startup-btn-secondary" style="margin-top: 10px;">
+          Continue without a folder
+        </button>
+        <p style="color: #a0a0a0; font-size: 12px; margin-top: 8px; text-align: center; line-height: 1.5;">
+          Your board is saved in this browser either way. A folder just adds versioned
+          backups you can see on disk.
+        </p>
         <div id="startupFolderStatus" style="display: none; margin-top: 12px; padding: 12px; background: rgba(0, 191, 255, 0.1); border: 1px solid var(--gm-primary); border-radius: 6px; color: var(--gm-primary); font-size: 13px; text-align: center;">
           Folder selected: <span id="startupFolderName" style="font-family: monospace; font-weight: 600;"></span>
         </div>
@@ -9448,6 +9458,11 @@
           await this.handleSelectFolder();
         });
 
+        // Escape hatch from the folder screen — see the note on the button itself.
+        document.getElementById('startupSkipFolderBtn').addEventListener('click', async () => {
+          await this.showMainView();
+        });
+
         // Exit button
         document.getElementById('startupExitBtn').addEventListener('click', async () => {
           await this.handleExit();
@@ -9623,6 +9638,58 @@
         });
       },
 
+      /**
+       * Leaves the folder screen for the main menu.
+       *
+       * Reachable with OR without a chosen folder: the board persists to OPFS/IndexedDB
+       * regardless, and this used to live inside the picker's success path only, so a
+       * dismissed or unavailable picker left the user stranded on a dead screen.
+       */
+      async showMainView() {
+        console.log('Transitioning to main view...');
+
+          // Update heading and subtext
+          document.getElementById('startupHeading').textContent = 'Welcome';
+          document.getElementById('startupSubtext').textContent = 'Choose an action to get started with your Kanban board';
+
+          // Hide folder view, show main view
+          document.getElementById('startupFolderView').style.display = 'none';
+          document.getElementById('startupMainView').style.display = 'flex';
+
+          // Check for existing profiles
+          const profiles = await StorageAdapter.listProfiles();
+          console.log('Found profiles:', profiles.length);
+
+          const continueBtn = document.getElementById('startupContinueBtn');
+          const helperText = document.getElementById('startupHelperText');
+          const filePathDisplay = document.getElementById('startupFilePathDisplay');
+          const currentFileSpan = document.getElementById('startupCurrentFile');
+
+          if (profiles.length === 0) {
+            continueBtn.disabled = true;
+            helperText.style.display = 'block';
+            filePathDisplay.style.display = 'none';
+            console.log('No profiles found, Continue button disabled');
+          } else {
+            continueBtn.disabled = false;
+            helperText.style.display = 'none';
+
+            // Get latest profile and show filename
+            const latestProfile = await StorageAdapter.getLatestProfile();
+            if (latestProfile && latestProfile._filename) {
+              currentFileSpan.textContent = latestProfile._filename;
+              filePathDisplay.style.display = 'block';
+              console.log('Latest profile:', latestProfile._filename);
+            } else {
+              filePathDisplay.style.display = 'none';
+            }
+          }
+
+          // Focus on primary button
+          const focusTarget = profiles.length > 0 ? continueBtn : document.getElementById('startupCreateBtn');
+          focusTarget.focus();
+      },
+
       async handleSelectFolder() {
         if (!window.showDirectoryPicker) {
           this.showError('File System Access API not supported in this browser. Please use Chrome, Edge, or Brave.');
@@ -9653,57 +9720,17 @@
           document.getElementById('startupSelectFolderBtn').style.background = 'var(--gm-primary)';
           document.getElementById('startupSelectFolderBtn').style.borderColor = 'var(--gm-primary)';
 
-          // Wait a moment for user to see confirmation, then transition to main view
-          setTimeout(async () => {
-            console.log('Transitioning to main view...');
-
-            // Update heading and subtext
-            document.getElementById('startupHeading').textContent = 'Welcome';
-            document.getElementById('startupSubtext').textContent = 'Choose an action to get started with your Kanban board';
-
-            // Hide folder view, show main view
-            document.getElementById('startupFolderView').style.display = 'none';
-            document.getElementById('startupMainView').style.display = 'flex';
-
-            // Check for existing profiles
-            const profiles = await StorageAdapter.listProfiles();
-            console.log('Found profiles:', profiles.length);
-
-            const continueBtn = document.getElementById('startupContinueBtn');
-            const helperText = document.getElementById('startupHelperText');
-            const filePathDisplay = document.getElementById('startupFilePathDisplay');
-            const currentFileSpan = document.getElementById('startupCurrentFile');
-
-            if (profiles.length === 0) {
-              continueBtn.disabled = true;
-              helperText.style.display = 'block';
-              filePathDisplay.style.display = 'none';
-              console.log('No profiles found, Continue button disabled');
-            } else {
-              continueBtn.disabled = false;
-              helperText.style.display = 'none';
-
-              // Get latest profile and show filename
-              const latestProfile = await StorageAdapter.getLatestProfile();
-              if (latestProfile && latestProfile._filename) {
-                currentFileSpan.textContent = latestProfile._filename;
-                filePathDisplay.style.display = 'block';
-                console.log('Latest profile:', latestProfile._filename);
-              } else {
-                filePathDisplay.style.display = 'none';
-              }
-            }
-
-            // Focus on primary button
-            const focusTarget = profiles.length > 0 ? continueBtn : document.getElementById('startupCreateBtn');
-            focusTarget.focus();
-          }, 1500);
+          // Let the confirmation land, then move on.
+          setTimeout(() => this.showMainView(), 1500);
 
         } catch (err) {
           if (err.name !== 'AbortError') {
             console.error('Error selecting folder:', err, err.name, err.message, err.stack);
-            this.showError('Failed to select folder: ' + (err.message || err.name || 'Unknown error'));
+            this.showError('Could not open the folder picker: ' + (err.message || err.name || 'Unknown error') + ' — you can continue without a folder.');
           } else {
+            // A cancelled picker used to be swallowed in silence, so the screen looked
+            // broken: one button, nothing visibly happening, and no way onward.
+            this.showError('No folder chosen. Your board still saves in this browser — use "Continue without a folder" to carry on.');
             console.log('Folder selection cancelled by user');
           }
         }
