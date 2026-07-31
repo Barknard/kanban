@@ -10,7 +10,7 @@
  * every returning visitor kept getting the previous page while the server served the
  * new one. `npm test` fails if this is out of date.
  */
-const CACHE = 'simple-kanban-d4a19847a9b8';
+const CACHE = 'simple-kanban-825573b7a8be';
 const SHELL = [
   './',
   './index.html',

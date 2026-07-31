@@ -33,8 +33,22 @@ const SHELL_FILES = [
   "apple-touch-icon.png",
 ];
 
+const TEXT = /\.(html|json|js|css|svg)$/i;
+
+/**
+ * Text files are normalised to LF before hashing.
+ *
+ * Git checks these out with CRLF on Windows and LF on Linux, so hashing raw bytes gives
+ * a different fingerprint on a developer's machine than in CI — the check then fails on
+ * CI for a file nobody touched. Binary assets are hashed as-is.
+ */
+function contentFor(file) {
+  const bytes = readFileSync(join(root, file));
+  return TEXT.test(file) ? bytes.toString("utf-8").replace(/\r\n/g, "\n") : bytes;
+}
+
 const hash = createHash("sha256");
-for (const file of SHELL_FILES) hash.update(readFileSync(join(root, file)));
+for (const file of SHELL_FILES) hash.update(contentFor(file));
 const fingerprint = hash.digest("hex").slice(0, 12);
 
 const swPath = join(root, "sw.js");
