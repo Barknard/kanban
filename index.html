@@ -771,13 +771,19 @@
       border: 1px solid var(--gm-border);
       border-radius: 8px;
       padding: 0;
-      width: 95vw;
-      max-width: 1400px;
-      max-height: 90vh;
+      /* Centring is left to the browser (`inset: 0; margin: auto`), which is the UA
+         behaviour for a top-layer dialog.
+         The hand-rolled `top/left: 50%` + translate version broke on phones: percentage
+         offsets and vw/vh resolve against DIFFERENT viewports when browser chrome is
+         present, so the dialog was sized against one and positioned against the other —
+         it rendered 450px wide inside a 412px screen with its buttons off the edge.
+         Dynamic viewport units keep the sizing honest; desktop is unaffected. */
       position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      inset: 0;
+      margin: auto;
+      width: max-content;
+      max-width: min(95dvw, 1400px);
+      max-height: 90dvh;
       box-shadow: 6px 6px 20px rgba(0,0,0,0.4);
     }
 
@@ -871,7 +877,9 @@
     .dialog-body {
       padding: 20px;
       overflow-y: auto;
-      max-height: calc(90vh - 140px);
+      /* Must use the same unit basis as the dialog's own max-height, or the body is
+         allowed to grow taller than its container and pushes the footer off-screen. */
+      max-height: calc(90dvh - 140px);
     }
 
     .dialog-footer {
@@ -1302,15 +1310,45 @@
       border-radius: 12px;
       background: var(--gm-surface);
       color: var(--gm-text);
-      max-width: 500px;
-      width: 90%;
       padding: 0;
       box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      /* Same story as the generic `dialog` rule above: let the browser centre it. */
       position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      margin: 0;
+      inset: 0;
+      margin: auto;
+      width: min(500px, 92dvw);
+      max-width: min(500px, 92dvw);
+      /* The create-profile view is taller than a phone screen. Without these the
+         overflow simply spilled off-screen and the Create button could not be
+         reached or tapped at all, so first run was impossible on mobile. */
+      max-height: 90vh;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+
+    /* Phone layout for the startup flow.
+       This MUST come after the base #startupModal rule above: the two have equal
+       specificity, so an override placed earlier in the file silently loses and the
+       dialog keeps its desktop size. */
+    @media (max-width: 768px) {
+      #startupModal {
+        max-height: 88dvh;
+      }
+
+      .startup-content {
+        padding: 20px 16px;
+      }
+
+      /* A 200px splash pushed the submit button off the bottom of the screen. */
+      .startup-icon {
+        width: 96px;
+        height: 96px;
+        margin-bottom: 12px;
+      }
+
+      .startup-heading {
+        font-size: 22px;
+      }
     }
 
     #startupModal::backdrop {

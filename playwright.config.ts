@@ -16,7 +16,15 @@ export default defineConfig({
 
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
-    { name: "mobile", use: { ...devices["Pixel 7"] } },
+    {
+      // A narrow touch viewport rather than a full device profile.
+      // Playwright's phone descriptors lay the page out at a larger CSS viewport and
+      // scale it down (innerWidth 673 for a 412px screen), which makes precise click
+      // targeting unreliable and tests the emulator more than the stylesheet. A plain
+      // small viewport with touch enabled exercises the responsive CSS honestly.
+      name: "mobile",
+      use: { ...devices["Desktop Chrome"], viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: false },
+    },
   ],
 
   webServer: {
