@@ -12,36 +12,54 @@ permissions:
   pages: write
   id-token: write
 
-# One deployment at a time; never cancel one mid-flight.
 concurrency:
   group: pages
   cancel-in-progress: false
 
 jobs:
-  test:
+  e2e-desktop:
+    name: Desktop e2e
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: npm
+        with: { node-version: '20', cache: npm }
       - run: npm ci
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
-      - name: End-to-end tests
-        run: npx playwright test --project=chromium
-      - name: Upload Playwright report on failure
+      - run: npx playwright install --with-deps chromium
+      # `pretest` also runs here: it fails the build if sw.js's cache fingerprint has
+      # drifted from the app shell, which is how a deploy once reached the server and
+      # never reached anyone's browser.
+      - run: npx playwright test --project=chromium
+      - uses: actions/upload-artifact@v4
         if: failure()
-        uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
+          name: report-desktop
+          path: playwright-report/
+          retention-days: 7
+
+  e2e-mobile:
+    name: Phone viewport
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: npm }
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      # This was NOT gated before, while the startup dialog was unusable on a phone —
+      # its form ran off the bottom of the screen and the Create button could not be
+      # tapped at all, so first run was impossible. Runs in parallel with desktop.
+      - run: npx playwright test --project=mobile --workers=1
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: report-mobile
           path: playwright-report/
           retention-days: 7
 
   deploy:
-    # Never publish a build that failed its tests.
-    needs: test
+    # Never publish something that failed its tests.
+    needs: [e2e-desktop, e2e-mobile]
     if: github.event_name == 'push'
     environment:
       name: github-pages
@@ -52,7 +70,6 @@ jobs:
       - uses: actions/configure-pages@v5
       - name: Upload artifact (repo root — the app is a single static page)
         uses: actions/upload-pages-artifact@v3
-        with:
-          path: '.'
+        with: { path: '.' }
       - id: deployment
         uses: actions/deploy-pages@v4
