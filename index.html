@@ -3427,9 +3427,28 @@
 
       const saved = saveProfile();
 
-      // Show localStorage save status (reflects whether the write actually succeeded -
-      // never claim "saved" when a full quota silently dropped the write)
-      updateSaveStatusDisplay('localStorage', 'local storage', saved);
+      // ========== PERSIST TO THE STORE WE ACTUALLY LOAD FROM ==========
+      // saveProfile() only writes localStorage. Startup, however, reads through
+      // StorageAdapter (OPFS, or IndexedDB where OPFS is unavailable), and the
+      // localStorage->OPFS migration runs ONLY when that store is still empty.
+      //
+      // So once the first migration had happened, every subsequent card, lane and
+      // setting was written to localStorage alone and the copy the app reloads was
+      // never updated - the work looked saved and was gone on the next visit. Only a
+      // handful of paths (logout, preferences, creating a user) ever reached this
+      // writer. Every mutation funnels through here via SaveScheduler, so this is the
+      // one place it belongs.
+      let persisted = true;
+      try {
+        await StorageAdapter.saveProfile(STATE.profile);
+      } catch (e) {
+        persisted = false;
+        console.error('Failed to persist profile to durable storage:', e);
+      }
+
+      // Never report success unless BOTH writes landed - a green "Saved" over a failed
+      // durable write is exactly how work gets lost quietly.
+      updateSaveStatusDisplay('localStorage', 'local storage', saved && persisted);
 
       // Auto-save to file if folder is set
       const handle = STATE.fsHandles.profileDir || await dbGet('profileDir');
@@ -3441,7 +3460,7 @@
         }
       }
 
-      return saved;
+      return saved && persisted;
     }
 
     function updateSaveStatusDisplay(storageType, storageName, success = true) {
@@ -4630,6 +4649,27 @@
       updateProfileLabel();
       updateAllFilters();
       populateMeDropdown();
+    }
+
+    /**
+     * Repoints every card reference from one person's name to another.
+     *
+     * Cards store people by display NAME, not id, so a rename that skips this leaves
+     * cards crediting somebody who no longer exists. Only the singular fields are real —
+     * the card dialog never writes plural arrays.
+     */
+    function renameUserAcrossCards(oldName, newName) {
+      if (!oldName || oldName === newName || !STATE.profile?.cards) return;
+      STATE.profile.cards.forEach(card => {
+        if (card.assignee === oldName) card.assignee = newName;
+        if (card.developer === oldName) card.developer = newName;
+        if (card.tester === oldName) card.tester = newName;
+        if (card.requestor === oldName) card.requestor = newName;
+      });
+      // The roster is keyed by name too, so it has to follow or the dropdowns disagree
+      // with the cards.
+      (STATE.profile.assignees || []).forEach(a => { if (a.name === oldName) a.name = newName; });
+      (STATE.profile.requestors || []).forEach(r => { if (r.name === oldName) r.name = newName; });
     }
 
     function updateProfileLabel() {
@@ -7679,12 +7719,17 @@
 
     function setMe() {
       const select = document.getElementById('meBtn');
-      const selectedName = select.value;
+      const selectedUserId = select.value;
+      if (!selectedUserId) return;
 
-      if (selectedName) {
-        saveMe(selectedName);
-        showToast(`Identity set to: ${selectedName}`);
-      }
+      saveMe(selectedUserId);
+      STATE.meUser = selectedUserId;
+
+      // The option's VALUE is an internal id like `user_a1b2c3d4`; announcing that at a
+      // human was pure noise. Show the person's name.
+      const name = STATE.profile?.users?.[selectedUserId]?.name || selectedUserId;
+      showToast(`Identity set to: ${name}`);
+      renderAll();
     }
 
     function populateMeDropdown() {
@@ -8484,7 +8529,11 @@
         }
 
         populateTesterDropdown(name);
-        populateDeveloperDropdown('');
+        // Developer shares this roster and must be rebuilt, but passing '' wiped whatever
+        // the user had already chosen — and Developer is required, so their next Save
+        // failed with a validation error they did not cause. Same bug as the assignee
+        // path above; preserve the current selection.
+        populateDeveloperDropdown(document.getElementById('cardDeveloper')?.value || '');
         dialog.close();
         dialog.remove();
       });
@@ -9006,15 +9055,38 @@
       const profileNameEl = document.getElementById('profileNameDisplay');
       profileNameEl.addEventListener('blur', (e) => {
         const newName = e.target.textContent.trim();
-        if (newName && newName !== STATE.profile.name) {
-          pushUndo();
+
+        // This label reads "Welcome, <name>" and shows the SIGNED-IN PERSON, but its
+        // edit used to rename the PROFILE — so updateProfileLabel() immediately painted
+        // the user's name back over the edit and it appeared to do nothing at all.
+        // Rename whoever is actually being greeted; fall back to the profile when
+        // nobody is signed in, which is what the label shows then.
+        const userId = getCurrentUserId();
+        const currentUser = STATE.profile?.users?.[userId];
+        const currentName = currentUser ? currentUser.name : STATE.profile.name;
+
+        if (!newName) {
+          e.target.textContent = currentName || 'Default';
+          return;
+        }
+        if (newName === currentName) return;
+
+        pushUndo();
+        if (currentUser) {
+          const previous = currentUser.name;
+          currentUser.name = newName;
+          // Their name is stamped onto cards, so those references have to follow.
+          renameUserAcrossCards(previous, newName);
+          setCurrentUserProfile(newName, currentUser.role, currentUser.capacity, currentUser.color, currentUser.shape);
+          logActivity(`Renamed user to "${newName}"`);
+        } else {
           STATE.profile.name = newName;
           logActivity(`Renamed profile to "${newName}"`);
-          saveSoon();
-          updateProfileLabel();
-        } else if (!newName) {
-          e.target.textContent = STATE.profile.name || 'Default';
         }
+        saveSoon();
+        renderAll();
+        updateProfileLabel();
+        populateMeDropdown();
       });
 
       profileNameEl.addEventListener('keydown', (e) => {
@@ -9777,6 +9849,17 @@
       },
 
       async showUserSelectionView() {
+        // This browser already knows who it belongs to, and that person is on this
+        // profile — asking them to pick themselves out of a one-item dropdown on every
+        // single visit is a gate that answers its own question. Only stop to ask when
+        // the answer is genuinely unknown (a shared profile, or a different browser).
+        const knownUserId = getCurrentUserId();
+        const knownUser = STATE.profile?.users?.[knownUserId];
+        if (knownUser && !knownUser.loggedOut) {
+          await this.handleUserSelection(knownUserId);
+          return;
+        }
+
         // Hide main view, show user selection view
         document.getElementById('startupMainView').style.display = 'none';
         document.getElementById('startupUserSelectionView').style.display = 'flex';
@@ -10072,6 +10155,28 @@
 
           // Load the new profile into STATE
           STATE.profile = profile;
+
+          // Register the person who just filled in this form as the profile's first
+          // user. Their name, role, colour and shape were all collected above and were
+          // previously only cached in localStorage — profile.users stayed empty, so on
+          // the next visit the app found zero users and demanded a "Create New User"
+          // form from someone who had already introduced themselves. It also left the
+          // identity dropdown empty and gave "Mine Only" nothing to match against.
+          const userId = getCurrentUserId();
+          if (!STATE.profile.users) STATE.profile.users = {};
+          if (!STATE.profile.users[userId]) {
+            STATE.profile.users[userId] = {
+              name,
+              role,
+              color,
+              shape,
+              capacity: parseInt(capacityValue, 10) || 5,
+              lastSeen: Date.now()
+            };
+            STATE.meUser = userId;
+            saveMe(userId);
+            await StorageAdapter.saveProfile(STATE.profile);
+          }
 
           console.log('About to close modal and init app');
 
