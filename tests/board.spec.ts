@@ -122,6 +122,42 @@ test.describe("Cards", () => {
   });
 });
 
+test.describe("Attachments", () => {
+  test("stores an attached file and shows it on the card", async ({ page }) => {
+    // The button used to open a file picker whose selection went nowhere: there was no
+    // change listener at all, so files vanished with no feedback.
+    await openBoard(page);
+    await addCard(page, "backlog", "With attachment");
+    await fillRequiredCardFields(page);
+
+    await page.locator("#cardAttachments").setInputFiles({
+      name: "notes.txt",
+      mimeType: "text/plain",
+      buffer: Buffer.from("some attached content"),
+    });
+
+    await expect(page.locator("#cardAttachmentsList")).toContainText("notes.txt");
+  });
+
+  test("keeps the attachment after saving and reopening the card", async ({ page }) => {
+    await openBoard(page);
+    await addCard(page, "backlog", "Persisted attachment");
+    await fillRequiredCardFields(page);
+    await page.locator("#cardAttachments").setInputFiles({
+      name: "spec.txt",
+      mimeType: "text/plain",
+      buffer: Buffer.from("persisted"),
+    });
+    await expect(page.locator("#cardAttachmentsList")).toContainText("spec.txt");
+
+    await page.locator("#cardSaveBtn").click();
+    await expect(page.locator("#cardDialog")).toBeHidden({ timeout: 10000 });
+
+    await page.locator(".card").first().dblclick();
+    await expect(page.locator("#cardAttachmentsList")).toContainText("spec.txt");
+  });
+});
+
 test.describe("Filters", () => {
   test("search narrows the visible cards", async ({ page }) => {
     await openBoard(page);
