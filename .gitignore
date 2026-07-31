@@ -1,0 +1,12 @@
+node_modules/
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

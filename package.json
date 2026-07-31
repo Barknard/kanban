@@ -1,0 +1,16 @@
+{
+  "name": "simple-kanban",
+  "version": "1.1.0",
+  "private": true,
+  "description": "A local-first Kanban board with WIP limits, flow metrics and multi-user profiles.",
+  "scripts": {
+    "serve": "http-server -p 8791 -a 127.0.0.1 --silent .",
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "icons": "python tools/make-icons.py"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.0",
+    "http-server": "^14.1.1"
+  }
+}

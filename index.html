@@ -2,8 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kanban</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0f0f1e">
+  <title>Simple Kanban</title>
+  <meta name="description" content="A local-first Kanban board with WIP limits, flow metrics and multi-user profiles. Your data stays in your browser.">
+  <link rel="icon" type="image/png" href="./favicon.png">
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+  <link rel="manifest" href="./manifest.json">
   <style>
     :root {
       --gm-primary: #00bfff;
@@ -69,58 +75,6 @@
       display: flex;
       align-items: center;
       gap: 8px;
-    }
-
-    .profile-dropdown {
-      position: relative;
-    }
-
-    .profile-label {
-      padding: 6px 12px;
-      background: var(--gm-bg);
-      border: 1px solid var(--gm-border);
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 13px;
-      transition: all 0.2s;
-    }
-
-    .profile-label:hover {
-      border-color: var(--gm-primary);
-    }
-
-    .profile-menu {
-      display: none;
-      position: absolute;
-      top: 100%;
-      left: 0;
-      margin-top: 4px;
-      background: var(--gm-surface);
-      border: 1px solid var(--gm-border);
-      border-radius: 4px;
-      min-width: 200px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      z-index: 1000;
-    }
-
-    .profile-menu.show {
-      display: block;
-    }
-
-    .profile-menu-item {
-      padding: 8px 12px;
-      cursor: pointer;
-      font-size: 13px;
-      transition: background 0.2s;
-      border-bottom: 1px solid var(--gm-border);
-    }
-
-    .profile-menu-item:last-child {
-      border-bottom: none;
-    }
-
-    .profile-menu-item:hover {
-      background: var(--gm-bg);
     }
 
     .profile-folder-label {
@@ -1334,10 +1288,6 @@
       .toolbar-group button[data-short]::after {
         content: attr(data-short);
       }
-
-      .profile-dropdown {
-        display: none;
-      }
     }
 
     @media (max-width: 480px) {
@@ -1676,16 +1626,7 @@
           <label class="startup-form-label" for="startupUserColor">Your Color <span style="color: #ff6b6b;">*</span></label>
           <select id="startupUserColor" class="startup-form-input" required>
             <option value="">Select color...</option>
-            <option value="#FF6B6B" style="background: #FF6B6B; color: white;">🔴 Red</option>
-            <option value="#4ECDC4" style="background: #4ECDC4; color: white;">🟢 Teal</option>
-            <option value="#FFD93D" style="background: #FFD93D; color: #000;">🟡 Yellow</option>
-            <option value="#A8E6CF" style="background: #A8E6CF; color: #000;">🟢 Mint</option>
-            <option value="#95E1D3" style="background: #95E1D3; color: #000;">🩵 Aqua</option>
-            <option value="#F38181" style="background: #F38181; color: white;">🩷 Pink</option>
-            <option value="#AA96DA" style="background: #AA96DA; color: white;">🟣 Purple</option>
-            <option value="#FCBAD3" style="background: #FCBAD3; color: #000;">💖 Rose</option>
-            <option value="#A8D8EA" style="background: #A8D8EA; color: #000;">🔵 Sky</option>
-            <option value="#FFB6B9" style="background: #FFB6B9; color: #000;">🌸 Blush</option>
+            <!-- Options populated from the shared COLORS[] array by StartupModal.showCreateForm() -->
           </select>
         </div>
         <div class="startup-form-group">
@@ -1783,16 +1724,7 @@
           <label class="startup-form-label" for="startupNewUserColor">Color <span style="color: #ff6b6b;">*</span></label>
           <select id="startupNewUserColor" class="startup-form-input" required>
             <option value="">Select color...</option>
-            <option value="#FF6B6B" style="background: #FF6B6B; color: white;">🔴 Red</option>
-            <option value="#4ECDC4" style="background: #4ECDC4; color: white;">🟢 Teal</option>
-            <option value="#FFD93D" style="background: #FFD93D; color: #000;">🟡 Yellow</option>
-            <option value="#A8E6CF" style="background: #A8E6CF; color: #000;">🟢 Mint</option>
-            <option value="#95E1D3" style="background: #95E1D3; color: #000;">🩵 Aqua</option>
-            <option value="#F38181" style="background: #F38181; color: white;">🩷 Pink</option>
-            <option value="#AA96DA" style="background: #AA96DA; color: white;">🟣 Purple</option>
-            <option value="#FCBAD3" style="background: #FCBAD3; color: #000;">💖 Rose</option>
-            <option value="#A8D8EA" style="background: #A8D8EA; color: #000;">🔵 Sky</option>
-            <option value="#FFB6B9" style="background: #FFB6B9; color: #000;">🌸 Blush</option>
+            <!-- Options populated from the shared COLORS[] array by StartupModal.showCreateUserForm() -->
           </select>
         </div>
         <div class="startup-form-group">
@@ -1897,9 +1829,9 @@
       </select>
       <input type="date" id="filterDueFrom" class="filter-input" placeholder="Due from">
       <input type="date" id="filterDueTo" class="filter-input" placeholder="Due to">
-      <div class="filter-chip" id="filterBlocked">Show Blocked</div>
-      <div class="filter-chip" id="filterDueWeek">Due This Week</div>
-      <div class="filter-chip" id="filterMine">Mine Only</div>
+      <div class="filter-chip" id="filterBlocked" role="button" tabindex="0" aria-pressed="false">Show Blocked</div>
+      <div class="filter-chip" id="filterDueWeek" role="button" tabindex="0" aria-pressed="false">Due This Week</div>
+      <div class="filter-chip" id="filterMine" role="button" tabindex="0" aria-pressed="false">Mine Only</div>
     </div>
 
     <div id="lanes-container">
@@ -2199,6 +2131,7 @@
       </div>
 
       <input type="file" id="cardAttachments" class="form-input" multiple style="display: none;">
+      <div id="cardAttachmentsList" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px;"></div>
     </div>
     <div class="dialog-footer">
       <div style="flex: 1; display: flex; gap: 8px;">
@@ -2293,16 +2226,7 @@
             <label class="form-label">Icon Color <span style="color: #ff6b6b;">*</span></label>
             <select id="prefUserColor" class="form-select">
               <option value="">Select color...</option>
-              <option value="#00bfff">🔵 Blue</option>
-              <option value="#ff6b6b">🔴 Red</option>
-              <option value="#51cf66">🟢 Green</option>
-              <option value="#ffd43b">🟡 Yellow</option>
-              <option value="#a78bfa">🟣 Purple</option>
-              <option value="#ff9f40">🟠 Orange</option>
-              <option value="#e64980">🌸 Pink</option>
-              <option value="#22b8cf">🔷 Cyan</option>
-              <option value="#8b5cf6">💜 Violet</option>
-              <option value="#10b981">🟩 Emerald</option>
+              <!-- Options populated from the shared COLORS[] array by openPrefsDialog() -->
             </select>
           </div>
           <div class="form-group">
@@ -2338,19 +2262,6 @@
     <div class="dialog-footer">
       <button id="prefsApplyBtn" class="secondary">Apply</button>
       <button id="prefsSaveBtn">Save</button>
-    </div>
-  </dialog>
-
-  <dialog id="metricsDialog">
-    <div class="dialog-header">
-      <div class="dialog-title">Flow Metrics</div>
-      <button class="dialog-close" onclick="metricsDialog.close()">&times;</button>
-    </div>
-    <div class="dialog-body">
-      <div class="metrics-grid" id="metricsGrid"></div>
-    </div>
-    <div class="dialog-footer">
-      <button onclick="metricsDialog.close()">Close</button>
     </div>
   </dialog>
 
@@ -2460,6 +2371,34 @@
       slate: { primary: '#64748b', accent: '#f43f5e', surface: '#1e293b' },
       violet: { primary: '#8b5cf6', accent: '#ec4899', surface: '#1e1b4b' }
     };
+
+    // Safe localStorage write: catches quota-exceeded (and any other write failure) so a full
+    // storage quota fails loudly (return false) instead of throwing mid-function or being silently
+    // swallowed while the UI still claims the save succeeded.
+    function safeSetItem(key, value) {
+      try {
+        localStorage.setItem(key, value);
+        return true;
+      } catch (e) {
+        const isQuotaError = e instanceof DOMException && (
+          e.name === 'QuotaExceededError' ||
+          e.name === 'NS_ERROR_DOM_QUOTA_REACHED' ||
+          e.code === 22 ||
+          e.code === 1014
+        );
+        console.error(isQuotaError ? `localStorage quota exceeded writing "${key}"` : `localStorage.setItem failed for "${key}"`, e);
+        return false;
+      }
+    }
+
+    // Populate a <select> with color options from the single COLORS[] source of truth, so the
+    // startup form, Preferences, and Edit User pickers can never drift apart again.
+    function populateColorSelect(selectEl, selectedColor) {
+      if (!selectEl) return;
+      const normalized = (selectedColor || '').toLowerCase();
+      selectEl.innerHTML = '<option value="">Select color...</option>' +
+        COLORS.map(c => `<option value="${c.hex}" ${c.hex === normalized ? 'selected' : ''}>${c.emoji} ${c.name}</option>`).join('');
+    }
 
     // ========== HELP TOOLTIP SYSTEM ==========
     // Field definitions with simple explanations, actions, and examples
@@ -3422,7 +3361,7 @@
     }
 
     function saveProfile() {
-      if (!STATE.profile) return;
+      if (!STATE.profile) return false;
 
       // ========== MASTER CHANGE TIMESTAMP ==========
       // This single timestamp captures ALL changes across the entire application.
@@ -3431,17 +3370,18 @@
       // This is the "greatest of all timestamps" - the master change log.
       STATE.profile.lastModified = Date.now();
 
-      localStorage.setItem('gm-kanban-profile', JSON.stringify(STATE.profile));
+      return safeSetItem('gm-kanban-profile', JSON.stringify(STATE.profile));
     }
 
     async function saveProfileWithAutoSave() {
       // Record user activity on every save
       recordUserActivity();
 
-      saveProfile();
+      const saved = saveProfile();
 
-      // Show localStorage save status
-      updateSaveStatusDisplay('localStorage', 'local storage');
+      // Show localStorage save status (reflects whether the write actually succeeded -
+      // never claim "saved" when a full quota silently dropped the write)
+      updateSaveStatusDisplay('localStorage', 'local storage', saved);
 
       // Auto-save to file if folder is set
       const handle = STATE.fsHandles.profileDir || await dbGet('profileDir');
@@ -3452,11 +3392,23 @@
           console.warn('Auto-save to file failed:', e);
         }
       }
+
+      return saved;
     }
 
-    function updateSaveStatusDisplay(storageType, storageName) {
+    function updateSaveStatusDisplay(storageType, storageName, success = true) {
       const statusEl = document.getElementById('saveStatusDisplay');
       if (!statusEl) return;
+
+      if (!success) {
+        // Persistent error state - do NOT auto-clear. The user must know their work
+        // is not being saved, not see it silently reset back to gray.
+        statusEl.textContent = 'Not saved - storage full';
+        statusEl.title = 'Local storage is full. Free up space (remove old profiles/users) - your latest changes are NOT persisted.';
+        statusEl.style.color = '#ff4444';
+        statusEl.style.fontWeight = '600';
+        return;
+      }
 
       const now = new Date();
       const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -3475,6 +3427,8 @@
       }
 
       statusEl.textContent = message;
+      statusEl.title = '';
+      statusEl.style.fontWeight = '';
       statusEl.style.color = '#4CAF50'; // Green for saved
 
       // Reset to gray after 3 seconds
@@ -3489,7 +3443,7 @@
         STATE.currentUserId = localStorage.getItem('kanban-userId');
         if (!STATE.currentUserId) {
           STATE.currentUserId = `user_${generateUUID().substring(0, 8)}`;
-          localStorage.setItem('kanban-userId', STATE.currentUserId);
+          safeSetItem('kanban-userId', STATE.currentUserId);
         }
       }
       return STATE.currentUserId;
@@ -3498,14 +3452,20 @@
     function getCurrentUserProfile() {
       const storedProfile = localStorage.getItem('kanban-userProfile');
       if (storedProfile) {
-        return JSON.parse(storedProfile);
+        try {
+          return JSON.parse(storedProfile);
+        } catch (e) {
+          console.error('Corrupt kanban-userProfile in localStorage:', e);
+          showError('Failed to load your saved identity - using defaults');
+          return { name: '', role: '', capacity: 0, color: '', shape: 'circle' };
+        }
       }
       return null;
     }
 
     function setCurrentUserProfile(name, role, capacity, color, shape) {
-      const profile = { name, role, capacity, color, shape };
-      localStorage.setItem('kanban-userProfile', JSON.stringify(profile));
+      const profile = { name, role, capacity, color: (color || '').toLowerCase(), shape };
+      safeSetItem('kanban-userProfile', JSON.stringify(profile));
       return profile;
     }
 
@@ -3528,8 +3488,9 @@
       if (!STATE.profile || !STATE.profile.users) return true;
 
       const userId = getCurrentUserId();
+      const normColor = (color || '').toLowerCase();
       for (const [uid, user] of Object.entries(STATE.profile.users)) {
-        if (uid !== userId && user.color === color && user.shape === shape) {
+        if (uid !== userId && (user.color || '').toLowerCase() === normColor && user.shape === shape) {
           return false;
         }
       }
@@ -3542,7 +3503,7 @@
       STATE.lastActivityTime = now;
 
       // Update localStorage immediately so other functions can check it
-      localStorage.setItem('kanban-lastActivity', now.toString());
+      safeSetItem('kanban-lastActivity', now.toString());
     }
 
     function getUserActivityStatus() {
@@ -3586,7 +3547,7 @@
 
           // CRITICAL: Update master timestamp and save to file for push/pull sync
           STATE.profile.lastModified = Date.now();
-          localStorage.setItem('gm-kanban-profile', JSON.stringify(STATE.profile));
+          safeSetItem('gm-kanban-profile', JSON.stringify(STATE.profile));
           await StorageAdapter.saveProfile(STATE.profile);
 
           // Auto-save to .json file if folder is set
@@ -3621,7 +3582,7 @@
       STATE.profile.lastModified = Date.now();
 
       // Save to localStorage and OPFS
-      localStorage.setItem('gm-kanban-profile', JSON.stringify(STATE.profile));
+      safeSetItem('gm-kanban-profile', JSON.stringify(STATE.profile));
       await StorageAdapter.saveProfile(STATE.profile);
 
       // CRITICAL: Auto-save to .json file for cross-window/multi-user sync
@@ -4149,7 +4110,7 @@
     }
 
     function saveDefaultPrefs(prefs) {
-      localStorage.setItem('gm-kanban-default-prefs', JSON.stringify(prefs));
+      safeSetItem('gm-kanban-default-prefs', JSON.stringify(prefs));
       showToast('Default preferences saved');
     }
 
@@ -4162,8 +4123,34 @@
       return localStorage.getItem('gm-kanban-user') || '';
     }
 
+    /**
+     * The display name of whoever is using this browser, or '' if unknown.
+     *
+     * There are three partially-wired notions of identity in this app and no single one
+     * is reliably populated:
+     *   - STATE.meUser        legacy key 'gm-kanban-user', only set by picking from #meBtn
+     *   - getCurrentUserId()  key 'kanban-userId', which the startup flow does NOT sync
+     *                         to the user record it creates
+     *   - 'kanban-userProfile' the cached identity, which startup DOES write
+     * "Mine Only" compares against card.assignee, a display NAME, so try each source in
+     * turn and return the first that yields one. Depending on any single source is why
+     * the filter hid every card.
+     */
+    function resolveMyName() {
+      const users = STATE.profile?.users || {};
+
+      const byMeUser = users[STATE.meUser]?.name;
+      if (byMeUser) return byMeUser;
+
+      const byCurrentId = users[getCurrentUserId()]?.name;
+      if (byCurrentId) return byCurrentId;
+
+      const cached = getCurrentUserProfile();
+      return (cached && cached.name) || '';
+    }
+
     function saveMe(user) {
-      localStorage.setItem('gm-kanban-user', user);
+      safeSetItem('gm-kanban-user', user);
       STATE.meUser = user;
     }
 
@@ -4195,7 +4182,7 @@
           const btnClass = btn.primary ? '' : 'secondary';
           const btnId = btn.id || `dialog-btn-${index}`;
           footerHTML += `<button id="${btnId}" class="${btnClass}">${btn.label}</button>`;
-          buttonConfigs.push({ id: btnId, onclick: btn.onclick, action: btn.action });
+          buttonConfigs.push({ id: btnId, onclick: btn.onclick });
         });
         footerHTML += '</div>';
       }
@@ -4218,10 +4205,6 @@
         if (btnElement) {
           if (btnCfg.onclick) {
             btnElement.addEventListener('click', btnCfg.onclick);
-          } else if (btnCfg.action) {
-            btnElement.addEventListener('click', () => {
-              eval(btnCfg.action);
-            });
           } else {
             // Default: close and remove dialog
             btnElement.addEventListener('click', () => {
@@ -4379,14 +4362,19 @@
         const wipLimit = lane.wip || 0;
         const wipClass = wipLimit > 0 && wipCount > wipLimit ? 'wip-badge over' : 'wip-badge';
 
+        // "WIP Display: None" preference hides the count text but keeps the control
+        // itself present, titled, and keyboard-operable so the WIP limit can still be edited.
+        const wipDisplayMode = STATE.profile.prefs?.wipDisplay || 'count';
+        const wipText = wipDisplayMode === 'none' ? '' : `${wipCount}/${wipLimit}`;
+
         const laneColor = getLaneColor(lane.id);
 
         laneEl.innerHTML = `
           <div class="lane-header" data-lane-id="${lane.id}" style="background: ${laneColor}; color: #FFFFFF;">
             ${lane.id !== 'backlog' ? '<span class="lane-drag-handle" draggable="true" data-lane-id="' + lane.id + '">⋮⋮</span>' : '<span style="width:20px;display:inline-block"></span>'}
             <div class="lane-title" contenteditable="true" data-lane-id="${lane.id}">${lane.name}</div>
-            <span class="${wipClass} wip-editable" data-lane-id="${lane.id}" title="Click to edit WIP limit. Current: ${wipCount} / ${wipLimit}" style="cursor: pointer; z-index: 10001;">${wipCount}/${wipLimit}</span>
-            ${lane.id !== 'backlog' && lane.id !== 'done' ? 
+            <span class="${wipClass} wip-editable" data-lane-id="${lane.id}" role="button" tabindex="0" title="Click to edit WIP limit. Current: ${wipCount} / ${wipLimit}" style="cursor: pointer; z-index: 10001;">${wipText}</span>
+            ${lane.id !== 'backlog' && lane.id !== 'done' ?
               `<button class="lane-btn icon-btn danger" data-action="delete" data-lane-id="${lane.id}" title="Delete Lane">🗑️</button>` : ''}
           </div>
           <div class="lane-body" data-lane-id="${lane.id}">
@@ -4510,7 +4498,7 @@
           ${editingIndicator}
           <div class="card-header">
             <span class="card-drag-handle">⋮</span>
-            <span class="card-collapse" title="${isExpanded ? 'Collapse' : 'Expand'}">${isExpanded ? '▼' : '▶'}</span>
+            <span class="card-collapse" role="button" tabindex="0" aria-expanded="${isExpanded}" title="${isExpanded ? 'Collapse' : 'Expand'}">${isExpanded ? '▼' : '▶'}</span>
             <div class="card-title" data-field="title">${escapeHtml(card.title || 'Untitled')}</div>
             <span style="margin-left: auto; font-size: 16px;" title="${card.cardType || 'Feature'}">${cardTypeIcon}</span>
           </div>
@@ -4528,15 +4516,15 @@
           ${descriptionHtml}
           <div class="card-actions">
             <div class="card-actions-left">
-              <button class="card-action-btn ${playClass}" data-action="start" data-card-id="${card.id}" title="Start">▶</button>
-              <button class="card-action-btn ${checkClass}" data-action="done" data-card-id="${card.id}" title="Done">✓</button>
-              <button class="card-action-btn ${editClass}" data-action="edit" data-card-id="${card.id}" title="Edit">✎</button>
+              <button class="card-action-btn ${playClass}" data-action="start" data-card-id="${card.id}" title="Start" aria-label="Start working on this card">▶</button>
+              <button class="card-action-btn ${checkClass}" data-action="done" data-card-id="${card.id}" title="Done" aria-label="Mark this card done">✓</button>
+              <button class="card-action-btn ${editClass}" data-action="edit" data-card-id="${card.id}" title="Edit" aria-label="Edit this card">✎</button>
             </div>
             <div class="card-actions-right">
-              <button class="card-action-btn ${isBlocked ? 'locked-active' : ''}" data-action="${isBlocked ? 'unblock' : 'block'}" data-card-id="${card.id}" title="${isBlocked ? 'Unblock' : 'Block'}">
+              <button class="card-action-btn ${isBlocked ? 'locked-active' : ''}" data-action="${isBlocked ? 'unblock' : 'block'}" data-card-id="${card.id}" title="${isBlocked ? 'Unblock' : 'Block'}" aria-label="${isBlocked ? 'Unblock this card' : 'Block this card'}">
                 ${lockIcon}
               </button>
-              <button class="card-action-btn danger" data-action="delete" data-card-id="${card.id}" title="Delete">🗑️</button>
+              <button class="card-action-btn danger" data-action="delete" data-card-id="${card.id}" title="Delete" aria-label="Delete this card">🗑️</button>
             </div>
           </div>
         </div>
@@ -4581,7 +4569,10 @@
         if (due < now || due > now + week) return false;
       }
 
-      if (f.mine && card.assignee !== STATE.meUser) return false;
+      if (f.mine) {
+        const meName = resolveMyName();
+        if (!meName || card.assignee !== meName) return false;
+      }
 
       return true;
     }
@@ -4720,6 +4711,13 @@
           const lane = STATE.profile.lanes.find(l => l.id === laneId);
           if (lane) {
             openWipLimitDialog(lane);
+          }
+        });
+        // Keyboard-operable: it's a <span>, not a <button>
+        el.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            e.target.click();
           }
         });
       });
@@ -5051,6 +5049,14 @@
             card.collapsed = !card.collapsed;
             saveProfileWithAutoSave(); // Immediate save for card collapse (fire and forget)
             renderLanes();
+          }
+        });
+        // Keyboard-operable: it's a <span>, not a <button>
+        el.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            e.stopPropagation();
+            e.target.click();
           }
         });
       });
@@ -5653,6 +5659,7 @@
       populateTesterDropdown(card.tester || '');
       populateDependenciesList(card.deps || []);
       populateTagSuggestions();
+      renderCardAttachments(card);
 
       document.getElementById('cardIdDisplay').value = card.cardId || 'Auto-generated on save';
       document.getElementById('cardTitle').value = card.title || '';
@@ -6297,21 +6304,6 @@
       }
     }
 
-    function renderColorPalette() {
-      const palette = document.getElementById('colorPalette');
-      palette.innerHTML = '';
-      COLORS.forEach(color => {
-        const swatch = document.createElement('div');
-        swatch.className = 'color-swatch';
-        swatch.style.background = color;
-        swatch.tabIndex = 0;
-        swatch.addEventListener('click', () => {
-          document.getElementById('cardColor').value = color;
-        });
-        palette.appendChild(swatch);
-      });
-    }
-
     function openPrefsDialog() {
       const p = STATE.profile.prefs;
       document.getElementById('prefDarkMode').checked = p.darkMode;
@@ -6325,10 +6317,15 @@
 
       // Populate user identity fields
       const userProfile = getCurrentUserProfile();
+
+      // Always (re)build the color options from the shared COLORS[] array so a color picked
+      // elsewhere (startup, edit user) always has a matching option here - even if no
+      // userProfile exists yet.
+      populateColorSelect(document.getElementById('prefUserColor'), userProfile?.color);
+
       if (userProfile) {
         document.getElementById('prefUserName').value = userProfile.name || '';
         document.getElementById('prefUserRole').value = userProfile.role || '';
-        document.getElementById('prefUserColor').value = userProfile.color || '';
         document.getElementById('prefUserShape').value = userProfile.shape || '';
       }
 
@@ -6423,9 +6420,7 @@
       const colorSelect = document.getElementById('editUserColor');
       const shapeSelect = document.getElementById('editUserShape');
 
-      colorSelect.innerHTML = COLORS.map(c => 
-        `<option value="${c.hex}" ${c.hex === userData.color ? 'selected' : ''}>${c.emoji} ${c.name}</option>`
-      ).join('');
+      populateColorSelect(colorSelect, userData.color);
 
       shapeSelect.innerHTML = `
         <option value="circle" ${userData.shape === 'circle' ? 'selected' : ''}>⚫ Circle</option>
@@ -6453,7 +6448,7 @@
       const userId = document.getElementById('editUserId').value;
       const name = document.getElementById('editUserName').value.trim();
       const role = document.getElementById('editUserRole').value.trim();
-      const color = document.getElementById('editUserColor').value;
+      const color = document.getElementById('editUserColor').value.toLowerCase();
       const shape = document.getElementById('editUserShape').value;
 
       if (!name) {
@@ -6461,10 +6456,11 @@
         return;
       }
 
-      // Check if color+shape combo is already in use by another user
+      // Check if color+shape combo is already in use by another user (case-insensitive -
+      // older profiles may still have uppercase hex colors saved)
       const users = STATE.profile.users || {};
-      const comboInUse = Object.entries(users).some(([id, user]) => 
-        id !== userId && user.color === color && user.shape === shape
+      const comboInUse = Object.entries(users).some(([id, user]) =>
+        id !== userId && (user.color || '').toLowerCase() === color && user.shape === shape
       );
 
       if (comboInUse) {
@@ -6481,14 +6477,16 @@
         STATE.profile.users[userId].color = color;
         STATE.profile.users[userId].shape = shape;
 
-        // If name changed, update all card assignments
+        // If name changed, update all card assignments. Note: the card dialog only ever
+        // writes the SINGULAR fields below (card.assignee/developer/tester/requestor) -
+        // there are no card.assignees/developers/testers/requestors plural arrays in
+        // practice, so those are the fields that actually need renaming here.
         if (oldName !== name && STATE.profile.cards) {
           STATE.profile.cards.forEach(card => {
             if (card.assignee === oldName) card.assignee = name;
-            if (card.assignees) card.assignees = card.assignees.map(a => a === oldName ? name : a);
-            if (card.developers) card.developers = card.developers.map(d => d === oldName ? name : d);
-            if (card.testers) card.testers = card.testers.map(t => t === oldName ? name : t);
-            if (card.requestors) card.requestors = card.requestors.map(r => r === oldName ? name : r);
+            if (card.developer === oldName) card.developer = name;
+            if (card.tester === oldName) card.tester = name;
+            if (card.requestor === oldName) card.requestor = name;
           });
         }
 
@@ -6508,36 +6506,37 @@
     }
 
     async function deleteUser(userId, userName) {
-      if (!confirm(`Are you sure you want to remove "${userName}" from this profile?\n\nThis will:\n• Delete their user data\n• Move all their assigned cards to "Blocked" (Pending Assignment)`)) {
+      if (!confirm(`Are you sure you want to remove "${userName}" from this profile?\n\nThis will:\n• Delete their user data\n• Mark all their assigned cards as Blocked (Pending Assignment)`)) {
         return;
       }
 
-      // Find all cards assigned to this user and move to Blocked
+      // Find all cards assigned to this user and mark them Blocked.
+      // NOTE: there is no default "Blocked" lane on this board - "blocked" is modeled as a
+      // boolean flag (card.blocked/card.blockReason, same mechanism as the card dialog's
+      // Block/Unblock button), so we reuse that instead of moving cards to a lane that
+      // doesn't exist (which used to make this whole step silently no-op).
       let affectedCards = 0;
-      const blockedLane = STATE.profile.lanes.find(l => l.name === 'Blocked');
 
-      if (blockedLane && STATE.profile.cards) {
+      if (STATE.profile.cards) {
         STATE.profile.cards.forEach(card => {
-          // Check if user is mentioned in any assignment field
-          const hasUser = 
+          // Check if user is mentioned in any assignment field (these are the real,
+          // singular fields the card dialog actually writes - see saveEditedUser)
+          const hasUser =
             card.assignee === userName ||
-            (card.assignees && card.assignees.includes(userName)) ||
-            (card.developers && card.developers.includes(userName)) ||
-            (card.testers && card.testers.includes(userName)) ||
-            (card.requestors && card.requestors.includes(userName));
+            card.developer === userName ||
+            card.tester === userName ||
+            card.requestor === userName;
 
           if (hasUser) {
             // Remove user from all assignment fields
             if (card.assignee === userName) card.assignee = '';
-            if (card.assignees) card.assignees = card.assignees.filter(a => a !== userName);
-            if (card.developers) card.developers = card.developers.filter(d => d !== userName);
-            if (card.testers) card.testers = card.testers.filter(t => t !== userName);
-            if (card.requestors) card.requestors = card.requestors.filter(r => r !== userName);
+            if (card.developer === userName) card.developer = '';
+            if (card.tester === userName) card.tester = '';
+            if (card.requestor === userName) card.requestor = '';
 
-            // Move to Blocked lane
-            card.lane = blockedLane.name;
-            card.blockedReason = 'Pending Assignment';
-            card.blockedDate = new Date().toISOString();
+            // Mark Blocked (Pending Assignment)
+            card.blocked = true;
+            card.blockReason = 'Pending Assignment';
 
             affectedCards++;
           }
@@ -6561,7 +6560,7 @@
       // Re-render lanes to show updated cards
       renderLanes();
 
-      showToast(`User "${userName}" removed${affectedCards > 0 ? ` • ${affectedCards} card${affectedCards > 1 ? 's' : ''} moved to Blocked` : ''}`);
+      showToast(`User "${userName}" removed${affectedCards > 0 ? ` • ${affectedCards} card${affectedCards > 1 ? 's' : ''} marked as Blocked` : ''}`);
     }
 
     function applyPrefsDialog() {
@@ -6594,7 +6593,7 @@
       // Validate user identity fields
       const userName = document.getElementById('prefUserName').value.trim();
       const userRole = document.getElementById('prefUserRole').value.trim();
-      const userColor = document.getElementById('prefUserColor').value;
+      const userColor = document.getElementById('prefUserColor').value.toLowerCase();
       const userShape = document.getElementById('prefUserShape').value;
 
       if (!userName || !userRole || !userColor || !userShape) {
@@ -6607,8 +6606,8 @@
       const currentUserProfile = getCurrentUserProfile();
 
       // Only validate if user changed their color or shape
-      if (!currentUserProfile || 
-          currentUserProfile.color !== userColor || 
+      if (!currentUserProfile ||
+          (currentUserProfile.color || '').toLowerCase() !== userColor ||
           currentUserProfile.shape !== userShape) {
 
         if (!isUserComboUnique(userColor, userShape)) {
@@ -6626,7 +6625,7 @@
         shape: userShape,
         capacity: currentUserProfile?.capacity || 0
       };
-      localStorage.setItem('kanban-userProfile', JSON.stringify(userProfile));
+      safeSetItem('kanban-userProfile', JSON.stringify(userProfile));
 
       // Update user profile in STATE.profile.users
       if (!STATE.profile.users) STATE.profile.users = {};
@@ -6636,14 +6635,14 @@
       };
 
       applyPrefsDialog();
-      await saveProfileWithAutoSave(); // Use async save
+      const saved = await saveProfileWithAutoSave(); // Use async save
 
       // Broadcast presence update with new identity
       await broadcastUserPresence();
       renderActiveUsers();
 
       prefsDialog.close();
-      showToast('Preferences and user identity saved');
+      showToast(saved ? 'Preferences and user identity saved' : 'Storage full - preferences NOT saved');
     }
 
     async function setPrefsFolder() {
@@ -8318,7 +8317,10 @@
       const assignee = { name: name.trim(), capacity: capacity };
       STATE.profile.assignees.push(assignee);
       populateAssigneeDropdown(assignee.name);
-      populateDeveloperDropdown('');
+      // Developer is fed from the same roster and must be REPOPULATED, but passing ''
+      // wiped whatever the user had already chosen — and since Developer is required,
+      // the next Save failed with a validation error they didn't cause.
+      populateDeveloperDropdown(document.getElementById('cardDeveloper')?.value || '');
       updateAssigneeFilter();
       saveSoon();
       showToast('Assignee added');
@@ -8587,7 +8589,7 @@
         STATE.profile.lastModified = Date.now();
 
         // Save to localStorage immediately
-        localStorage.setItem('gm-kanban-profile', JSON.stringify(STATE.profile));
+        safeSetItem('gm-kanban-profile', JSON.stringify(STATE.profile));
 
         // Save to file/OPFS and .json file
         try {
@@ -8629,7 +8631,7 @@
         STATE.profile.lastModified = Date.now();
 
         // Save synchronously to localStorage (OPFS/file saves would be cancelled by browser)
-        localStorage.setItem('gm-kanban-profile', JSON.stringify(STATE.profile));
+        safeSetItem('gm-kanban-profile', JSON.stringify(STATE.profile));
 
         // Broadcast logout with userId so other tabs can mark this user as logged out immediately
         syncChannel.postMessage({ type: 'user-logout', userId: userId });
@@ -8651,7 +8653,7 @@
         STATE.profile.lastModified = Date.now();
 
         // Save to localStorage immediately (synchronous)
-        localStorage.setItem('gm-kanban-profile', JSON.stringify(STATE.profile));
+        safeSetItem('gm-kanban-profile', JSON.stringify(STATE.profile));
 
         // Best-effort async save to file/OPFS (may be cancelled by browser, but worth trying)
         StorageAdapter.saveProfile(STATE.profile).catch(() => {});
@@ -8812,6 +8814,43 @@
 
       document.getElementById('cardAttachBtn').addEventListener('click', () => {
         document.getElementById('cardAttachments').click();
+      });
+
+      document.getElementById('cardAttachments').addEventListener('change', async (e) => {
+        const files = Array.from(e.target.files || []);
+        e.target.value = ''; // allow re-selecting the same file later
+        if (files.length === 0) return;
+
+        const card = STATE.profile.cards.find(c => c.id === STATE.currentCardId);
+        if (!card) return;
+
+        if (!card.attachments) card.attachments = [];
+        let currentTotal = card.attachments.reduce((sum, a) => sum + (a.size || 0), 0);
+        let anyAdded = false;
+
+        for (const file of files) {
+          if (currentTotal + file.size > MAX_ATTACHMENTS_BYTES_PER_CARD) {
+            showError(`"${file.name}" skipped - attachment limit (${formatBytes(MAX_ATTACHMENTS_BYTES_PER_CARD)} total per card) reached`);
+            continue;
+          }
+          try {
+            const dataUrl = await readFileAsDataURL(file);
+            card.attachments.push({ id: generateId(), name: file.name, type: file.type, size: file.size, dataUrl });
+            currentTotal += file.size;
+            anyAdded = true;
+          } catch (err) {
+            console.warn('Failed to read attachment', file.name, err);
+            showError(`Failed to read "${file.name}"`);
+          }
+        }
+
+        if (anyAdded) {
+          renderCardAttachments(card);
+          const saved = await saveProfileWithAutoSave();
+          if (!saved) {
+            showError('Attachment not saved - storage full. Remove some attachments or free up space.');
+          }
+        }
       });
 
       // Add section toggle event listeners
@@ -8981,7 +9020,7 @@
 
       // Validate user color+shape combo in real-time
       function validatePrefUserCombo() {
-        const color = document.getElementById('prefUserColor').value;
+        const color = document.getElementById('prefUserColor').value.toLowerCase();
         const shape = document.getElementById('prefUserShape').value;
         const errorEl = document.getElementById('prefComboError');
 
@@ -8994,8 +9033,8 @@
         const currentUserProfile = getCurrentUserProfile();
 
         // Only validate if user changed their color or shape
-        if (currentUserProfile && 
-            currentUserProfile.color === color && 
+        if (currentUserProfile &&
+            (currentUserProfile.color || '').toLowerCase() === color &&
             currentUserProfile.shape === shape) {
           errorEl.style.display = 'none';
           return;
@@ -9070,19 +9109,32 @@
       document.getElementById('filterBlocked').addEventListener('click', (e) => {
         STATE.profile.filters.blocked = !STATE.profile.filters.blocked;
         e.target.classList.toggle('active');
+        e.target.setAttribute('aria-pressed', STATE.profile.filters.blocked ? 'true' : 'false');
         renderLanes();
       });
 
       document.getElementById('filterDueWeek').addEventListener('click', (e) => {
         STATE.profile.filters.dueWeek = !STATE.profile.filters.dueWeek;
         e.target.classList.toggle('active');
+        e.target.setAttribute('aria-pressed', STATE.profile.filters.dueWeek ? 'true' : 'false');
         renderLanes();
       });
 
       document.getElementById('filterMine').addEventListener('click', (e) => {
         STATE.profile.filters.mine = !STATE.profile.filters.mine;
         e.target.classList.toggle('active');
+        e.target.setAttribute('aria-pressed', STATE.profile.filters.mine ? 'true' : 'false');
         renderLanes();
+      });
+
+      // Make the filter chips keyboard-operable (they're plain divs, not <button>s)
+      ['filterBlocked', 'filterDueWeek', 'filterMine'].forEach(id => {
+        document.getElementById(id).addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            e.target.click();
+          }
+        });
       });
     }
 
@@ -9090,6 +9142,64 @@
       const div = document.createElement('div');
       div.textContent = text;
       return div.innerHTML;
+    }
+
+    // ========== ATTACHMENTS ==========
+    const MAX_ATTACHMENTS_BYTES_PER_CARD = 5 * 1024 * 1024; // 5MB total per card - this is a localStorage-backed profile, keep it small
+
+    function formatBytes(bytes) {
+      if (!bytes) return '0 B';
+      const units = ['B', 'KB', 'MB'];
+      let i = 0;
+      let n = bytes;
+      while (n >= 1024 && i < units.length - 1) {
+        n /= 1024;
+        i++;
+      }
+      return `${n.toFixed(i > 0 ? 1 : 0)} ${units[i]}`;
+    }
+
+    function readFileAsDataURL(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(reader.error || new Error('Failed to read file'));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function renderCardAttachments(card) {
+      const list = document.getElementById('cardAttachmentsList');
+      if (!list) return;
+      const attachments = card.attachments || [];
+
+      if (attachments.length === 0) {
+        list.innerHTML = '';
+        return;
+      }
+
+      list.innerHTML = attachments.map(a => `
+        <div class="attachment-chip" style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.05);border:1px solid var(--gm-border);border-radius:4px;padding:4px 8px;font-size:12px;">
+          <a href="${a.dataUrl}" download="${escapeHtml(a.name)}" style="color:var(--gm-text);text-decoration:none;" title="${escapeHtml(a.name)} (${formatBytes(a.size)})">📎 ${escapeHtml(a.name)}</a>
+          <span class="attachment-remove" data-attachment-id="${a.id}" role="button" tabindex="0" aria-label="Remove attachment ${escapeHtml(a.name)}" title="Remove attachment" style="cursor:pointer;color:var(--gm-text-dim);">&times;</span>
+        </div>
+      `).join('');
+
+      list.querySelectorAll('.attachment-remove').forEach(btn => {
+        const removeAttachment = async () => {
+          const id = btn.dataset.attachmentId;
+          card.attachments = (card.attachments || []).filter(a => a.id !== id);
+          renderCardAttachments(card);
+          await saveProfileWithAutoSave();
+        };
+        btn.addEventListener('click', removeAttachment);
+        btn.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            removeAttachment();
+          }
+        });
+      });
     }
 
     // Generate a unique, static color based on a string hash
@@ -9113,75 +9223,6 @@
       console.textContent = msg;
       console.classList.add('show');
       setTimeout(() => console.classList.remove('show'), 5000);
-    }
-
-    function showValidationError(missingFields) {
-      // Clear any previous error highlights
-      document.querySelectorAll('.form-input, .form-select, .form-textarea').forEach(el => {
-        el.style.border = '';
-      });
-
-      // Map field names to element IDs
-      const fieldMap = {
-        'Title': 'cardTitle',
-        'Description': 'cardDescription',
-        'Priority': 'cardPriority',
-        'Risk': 'cardRisk',
-        'Assignee': 'cardAssignee',
-        'Due Date': 'cardDueDate',
-        'Effort': 'cardEffort',
-        'SLE': 'cardSla',
-        'Tags': 'cardTags',
-        'User Story (all parts)': ['cardStoryRole', 'cardStoryOutcome', 'cardStoryAction'],
-        'Acceptance Criteria': 'cardAcceptanceCriteria',
-        'Definition of Done': 'cardDefinitionOfDone',
-        'Testing Plan': 'cardTestingPlan',
-        'Tester': 'cardTester',
-        'Tester (must be different from Assignee)': 'cardTester'
-      };
-
-      // Highlight missing fields
-      missingFields.forEach(field => {
-        const elementId = fieldMap[field];
-        if (Array.isArray(elementId)) {
-          elementId.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.style.border = '2px solid #ff6b6b';
-          });
-        } else if (elementId) {
-          const el = document.getElementById(elementId);
-          if (el) el.style.border = '2px solid #ff6b6b';
-        }
-      });
-
-      // Show error dialog on top
-      const errorHtml = `
-        <div style="padding: 20px;">
-          <h3 style="color: #ff6b6b; margin-bottom: 15px;">⚠️ Missing Required Fields</h3>
-          <p style="margin-bottom: 10px;">Please fill in the following fields:</p>
-          <ul style="margin: 10px 0; padding-left: 25px; line-height: 1.8;">
-            ${missingFields.map(field => `<li><strong>${field}</strong></li>`).join('')}
-          </ul>
-          <p style="margin-top: 15px; font-size: 13px; color: #888;">Fields with red borders need to be completed.</p>
-        </div>
-      `;
-
-      const dialog = document.createElement('dialog');
-      dialog.style.zIndex = '10000';
-      dialog.style.border = '2px solid #ff6b6b';
-      dialog.innerHTML = `
-        <div class="dialog-header" style="background: #ff6b6b20;">
-          <div class="dialog-title" style="color: #ff6b6b;">Validation Error</div>
-          <button class="dialog-close" onclick="this.closest('dialog').close();this.closest('dialog').remove();">&times;</button>
-        </div>
-        <div class="dialog-body">${errorHtml}</div>
-        <div class="dialog-footer">
-          <button onclick="this.closest('dialog').close();this.closest('dialog').remove();">OK</button>
-        </div>
-      `;
-
-      document.body.appendChild(dialog);
-      dialog.showModal();
     }
 
     function showToast(msg) {
@@ -9220,27 +9261,42 @@
             loadingIcon.endsWith('.webp') || loadingIcon.endsWith('.svg')) {
           // If it's a URL or image file, create an image
           iconEl.innerHTML = `<img src="${loadingIcon}" alt="Loading icon" id="startupIconImg">`;
+          const iconImg = iconEl.querySelector('img');
+
+          // A configured icon file that isn't there (renamed, never copied, or a dead
+          // URL) must not leave an empty broken-image box on the very first screen.
+          iconImg.addEventListener('error', () => {
+            iconEl.innerHTML = '';
+            iconEl.textContent = '📋';
+          });
 
           // If it's a GIF, make it play twice then freeze
           if (loadingIcon.endsWith('.gif')) {
-            const img = iconEl.querySelector('img');
+            const img = iconImg;
             // Estimate GIF loop duration (3 seconds per loop for SIMPLE KANBAN)
             // Play twice = 6 seconds
             setTimeout(() => {
-              // Create canvas to freeze the GIF
-              const canvas = document.createElement('canvas');
-              canvas.width = img.naturalWidth || img.width || 200;
-              canvas.height = img.naturalHeight || img.height || 200;
-              canvas.style.maxWidth = '100%';
-              canvas.style.maxHeight = '100%';
-              canvas.style.objectFit = 'contain';
+              // A broken or still-loading image throws InvalidStateError on drawImage,
+              // which used to surface as an uncaught exception at startup.
+              if (!img.complete || !img.naturalWidth) return;
+              try {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                canvas.style.maxWidth = '100%';
+                canvas.style.maxHeight = '100%';
+                canvas.style.objectFit = 'contain';
 
-              const ctx = canvas.getContext('2d');
-              ctx.drawImage(img, 0, 0);
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
 
-              // Replace img with canvas
-              iconEl.innerHTML = '';
-              iconEl.appendChild(canvas);
+                // Replace img with canvas
+                iconEl.innerHTML = '';
+                iconEl.appendChild(canvas);
+              } catch (e) {
+                // Freezing is decoration; leaving the GIF looping is a fine fallback.
+                console.warn('Could not freeze loading GIF:', e);
+              }
             }, 6000); // 2 loops × 3 seconds = 6 seconds
           }
         } else {
@@ -9486,14 +9542,14 @@
 
         // Validate color+shape combination
         const validateCombo = () => {
-          const color = document.getElementById('startupNewUserColor').value;
+          const color = document.getElementById('startupNewUserColor').value.toLowerCase();
           const shape = document.getElementById('startupNewUserShape').value;
           const errorEl = document.getElementById('startupNewUserComboError');
 
           if (color && shape && STATE.profile && STATE.profile.users) {
             const users = STATE.profile.users;
             for (const [uid, user] of Object.entries(users)) {
-              if (user.color === color && user.shape === shape) {
+              if ((user.color || '').toLowerCase() === color && user.shape === shape) {
                 errorEl.style.display = 'block';
                 return false;
               }
@@ -9715,7 +9771,7 @@
         document.getElementById('startupNewUserLastName').value = '';
         document.getElementById('startupNewUserUsername').value = '';
         document.getElementById('startupNewUserRole').value = '';
-        document.getElementById('startupNewUserColor').value = '';
+        populateColorSelect(document.getElementById('startupNewUserColor'), '');
         document.getElementById('startupNewUserShape').value = '';
         document.getElementById('startupNewUserComboError').style.display = 'none';
         document.getElementById('startupCreateUserSubmitBtn').disabled = true;
@@ -9771,7 +9827,7 @@
 
         // Store user ID
         STATE.currentUserId = userId;
-        localStorage.setItem('kanban-userId', userId);
+        safeSetItem('kanban-userId', userId);
 
         console.log('User selected, closing modal and initializing app');
 
@@ -9788,6 +9844,9 @@
 
       async handleCreateNewUser(firstName, lastName, role, color, shape) {
         try {
+          // Normalize so uniqueness checks and storage stay case-insensitive/consistent
+          color = (color || '').toLowerCase();
+
           // Generate username
           const username = this.generateUsername(firstName, lastName);
           const fullName = `${firstName} ${lastName}`;
@@ -9795,7 +9854,7 @@
           // Check if color+shape combo is already used
           const users = STATE.profile.users || {};
           for (const [uid, user] of Object.entries(users)) {
-            if (user.color === color && user.shape === shape) {
+            if ((user.color || '').toLowerCase() === color && user.shape === shape) {
               document.getElementById('startupNewUserComboError').style.display = 'block';
               return;
             }
@@ -9890,7 +9949,7 @@
         document.getElementById('startupRole').value = '';
         document.getElementById('startupCapacity').value = '';
         document.getElementById('startupCapacityCustom').value = '';
-        document.getElementById('startupUserColor').value = '';
+        populateColorSelect(document.getElementById('startupUserColor'), '');
         document.getElementById('startupUserShape').value = '';
         document.getElementById('startupCapacityCustomGroup').style.display = 'none';
         document.getElementById('startupCreateSubmitBtn').disabled = true;
@@ -9919,7 +9978,7 @@
 
           const name = document.getElementById('startupName').value.trim();
           const role = document.getElementById('startupRole').value;
-          const color = document.getElementById('startupUserColor').value;
+          const color = document.getElementById('startupUserColor').value.toLowerCase();
           const shape = document.getElementById('startupUserShape').value;
 
           // Validate unique color+shape combo
@@ -10149,15 +10208,25 @@
 
     function bindKeyboardShortcuts() {
       document.addEventListener('keydown', (e) => {
+        // Don't hijack undo/redo while the user is typing - e.g. Ctrl+Z in a text field
+        // must undo the user's typo, not revert the entire board.
+        const t = e.target;
+        const isEditableTarget = !!t && (
+          t.tagName === 'INPUT' ||
+          t.tagName === 'TEXTAREA' ||
+          t.tagName === 'SELECT' ||
+          t.isContentEditable
+        );
+
         // Ctrl+Z or Cmd+Z for Undo
-        if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        if (!isEditableTarget && (e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
           e.preventDefault();
           undo();
           return;
         }
 
         // Ctrl+Y or Cmd+Shift+Z for Redo
-        if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+        if (!isEditableTarget && (e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
           e.preventDefault();
           redo();
           return;
@@ -10167,14 +10236,11 @@
         if (e.key === 'Escape') {
           const cardDialog = document.getElementById('cardDialog');
           const prefsDialog = document.getElementById('prefsDialog');
-          const metricsDialog = document.getElementById('metricsDialog');
 
           if (cardDialog.open) {
             cardDialog.close();
           } else if (prefsDialog.open) {
             prefsDialog.close();
-          } else if (metricsDialog.open) {
-            metricsDialog.close();
           }
         }
       });
@@ -10228,8 +10294,9 @@
     // Broadcast when we update the profile
     const originalSaveProfile = saveProfileWithAutoSave;
     saveProfileWithAutoSave = async function() {
-      await originalSaveProfile();
+      const saved = await originalSaveProfile();
       syncChannel.postMessage({ type: 'profile-updated', version: STATE.profile?.meta?.version });
+      return saved;
     };
 
     // Sync on window focus and expire stale locks
@@ -10261,7 +10328,7 @@
         }
 
         // Save synchronously to localStorage (OPFS/file saves would be cancelled by browser)
-        localStorage.setItem('gm-kanban-profile', JSON.stringify(STATE.profile));
+        safeSetItem('gm-kanban-profile', JSON.stringify(STATE.profile));
 
         // Broadcast logout with userId so other tabs can mark this user as logged out immediately
         syncChannel.postMessage({ type: 'user-logout', userId: userId });
@@ -10270,6 +10337,15 @@
 
     // Show startup modal on page load
     StartupModal.show();
+
+    // Offline shell. Only over http(s): a file:// page has no service-worker support,
+    // and this app is still meant to work as a double-clicked local file.
+    if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .catch((err) => console.warn('Service worker registration failed:', err));
+      });
+    }
   </script>
 </body>
 </html>
